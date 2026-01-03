@@ -1,0 +1,14 @@
+{
+  "MonsterMMORPG/Wan_GGUF/FLUX-SRPO-bf16.safetensors": {
+    "sha256": "c14b5bbb3ec87da28bb26b44543d2dbf8ff775cbf2cfdc64f3bfc19122ad4b89",
+    "size": 23802997117,
+    "mtime": 1758825113.8071182,
+    "verified_at": 1767381379.8358188
+  },
+  "OwlMaster/Some_best_SDXL/realvisxlV50_v50Bakedvae.safetensors": {
+    "sha256": "6a35a7855770ae9820a3c931d4964c3817b6d9e3c6f9c4dabb5b3a94e5643b80",
+    "size": 6938065488,
+    "mtime": 1767385189.2278326,
+    "verified_at": 1767385193.6416988
+  }
+}

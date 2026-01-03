@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "repos": {
+    "MonsterMMORPG/BestImageUpscalers": {
+      "fetched_at": 1767396991.6395361,
+      "fetched_date": "2026-01-03 02:36:31",
+      "basenames": [
+        "2x-animesharpv4_fast_rcan_pu.safetensors",
+        "2x_aniscale2_omni_i16_40k.pth",
+        "2xliveactionv1_span_490000.pth",
+        "2xnomosuni_span_multijpg_ldl.pth",
+        "4x-animesharp.safetensors",
+        "4x-ultrasharp.safetensors",
+        "4x-ultrasharpv2.safetensors",
+        "4xnomos2_hq_dat2.safetensors",
+        "4xrealwebphoto_v4_dat2.safetensors",
+        "hat-l_srx4_imagenet-pretrain.safetensors",
+        "kim2091-4x-ultrasharp.safetensors",
+        "realesrgan_x4plus.safetensors",
+        "realesrgan_x4plus_anime_6b.safetensors"
+      ],
+      "source": "hf"
+    },
+    "MonsterMMORPG/joy-caption-alpha-two": {
+      "fetched_at": 1767396991.8409545,
+      "fetched_date": "2026-01-03 02:36:31",
+      "basenames": [
+        "adapter_model.safetensors",
+        "clip_model.pt",
+        "image_adapter.pt"
+      ],
+      "source": "hf"
+    },
+    "unsloth/Meta-Llama-3.1-8B-Instruct": {
+      "fetched_at": 1767396992.0410593,
+      "fetched_date": "2026-01-03 02:36:32",
+      "basenames": [
+        "model-00001-of-00004.safetensors",
+        "model-00002-of-00004.safetensors",
+        "model-00003-of-00004.safetensors",
+        "model-00004-of-00004.safetensors"
+      ],
+      "source": "hf"
+    },
+    "google/siglip-so400m-patch14-384": {
+      "fetched_at": 1767396992.2504394,
+      "fetched_date": "2026-01-03 02:36:32",
+      "basenames": [
+        "model.safetensors"
+      ],
+      "source": "hf"
+    }
+  }
+}
