@@ -1,0 +1,61 @@
+
+Please register for RunPod at: https://runpod.io?ref=1aka98lq
+
+Example tutorial for learn how to install and use RunPod
+
+(starts at 22:03) : https://youtu.be/KW-MHmoNcqo?si=QN8X8Sjn13ZYu-EU&t=1323
+
+Select a GPU with a minimum of 24 GB VRAM, such as the RTX 3090.
+
+Choose a RunPod template:
+
+RunPod Pytorch 2.2.0
+runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04
+
+Edit the pod configuration:
+Set the volume disk size to 50 GB or your preferred size according to number of models you want to download or such.
+
+Add HTTP port 7861 to the exposed ports list to enable proxy connection.
+By default, it will start with the --share option for Gradio sharing.
+
+Upload all files to the workspace folder.
+
+To install, run the following commands:
+
+
+export HF_HOME="/workspace"
+chmod +x Runpod_Install_Img_Process.sh
+./Runpod_Install_Img_Process.sh
+
+
+To use after installation:
+
+Open a new terminal and run the following code each time you start:
+
+Run the following commands for starting the Ultimate Batch Processing APP:
+
+ulimit -n 65536
+cd /workspace
+export HF_HOME="/workspace"
+export PYTHONWARNINGS="ignore"
+source venv/bin/activate
+python app.py --share
+
+Run the following commands for SAM 2 based Mass Segment and Masking APP
+
+ulimit -n 65536
+cd /workspace
+export HF_HOME="/workspace"
+export PYTHONWARNINGS="ignore"
+source venv/bin/activate
+python SAM_Segmenter.py --share
+
+When doing processing giving folder path dont forget /workspace "/" at the beginning
+
+You will receive a Gradio live link, and you'll be able to connect via the proxy on port 7861.
+
+Pay attention to the Gradio share link among the printed messages.
+
+Remove the --share option if you don't want the Gradio live link
+
+

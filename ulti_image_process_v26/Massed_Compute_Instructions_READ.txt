@@ -1,0 +1,61 @@
+
+
+Example tutorial for learn how to install and use Massed Compute
+(Starts at 12:58) : https://youtu.be/KW-MHmoNcqo?si=G1WbG-Qw4ujWvOtG&t=778
+
+Register for Massed Compute using the following link I appreicate that a lot:
+https://vm.massedcompute.com/signup?linkId=lp_034338&sourceId=secourses&tenantId=massed-compute
+
+We have a special coupon for L40, A6000 and A6000 ALT config : SECourses
+
+A6000 and A6000 ALT config will be 31 cents per hour with our coupon
+L40 will be 49 cents per hour with our coupon - recommended since it has over 2x disk compared to A6000 and faster 
+
+Important Notes:
+
+Ensure each copy-paste action is accurate, as Massed Compute may not always copy-paste correctly.
+
+Select an L40 and use our code SECourses for huge discount.
+
+If L40 not available or you need cheaper select A6000 GPU or A6000 GPU ALT (if A6000 is not available)
+
+Use ThinClient or log in to Patreon on Massed Compute to download files to your Massed Compute instance.
+
+Setup Instructions:
+
+a. Create a folder (e.g., "ulti_app") in a location of your choice (such as Apps or Desktop).
+
+b. Place all downloaded files into this folder.
+
+c. Open a terminal in the folder containing your files.
+
+Installation:
+
+Run the following commands in the terminal:
+
+chmod +x Massed_Compute_Install.sh
+./Massed_Compute_Install.sh
+
+Usage After Installation:
+
+a. Open a new terminal in the folder where you downloaded and executed the files.
+
+b. Run the following commands for main Ultimate Batch Processing APP:
+
+ulimit -n 65536
+export PYTHONWARNINGS="ignore"
+source venv/bin/activate
+python3 app.py --share 
+
+
+c. Run the following commands for SAM 2 based Mass Segment and Masking APP
+
+ulimit -n 65536
+export PYTHONWARNINGS="ignore"
+source venv/bin/activate
+python3 SAM_Segmenter.py --share 
+
+Note: Remove the "--share True" flag if you don't want to use Gradio live.
+
+The Gradio live URL can be accessed from your computer, tablet, or phone.
+
