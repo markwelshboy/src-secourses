@@ -1,0 +1,52 @@
+
+--extra-index-url https://download.pytorch.org/whl/cu130
+torch==2.9.1
+torchvision
+torchaudio
+
+flash_attn @ https://huggingface.co/MonsterMMORPG/Wan_GGUF/resolve/main/flash_attn-2.8.3+torch2.9.1.cuda13.1-cp310-cp310-win_amd64.whl ; sys_platform == 'win32'
+
+flash_attn @ https://huggingface.co/MonsterMMORPG/Wan_GGUF/resolve/main/flash_attn-2.8.3+torch2.9.1.cuda13.1-cp310-cp310-linux_x86_64.whl ; sys_platform == 'linux'
+
+xformers @ https://huggingface.co/MonsterMMORPG/Wan_GGUF/resolve/main/xformers-0.0.34+41531cee.d20260109-cp39-abi3-win_amd64.whl ; sys_platform == 'win32'
+
+xformers @ https://huggingface.co/MonsterMMORPG/Wan_GGUF/resolve/main/xformers-0.0.34+41531cee.d20260109-cp39-abi3-linux_x86_64.whl ; sys_platform == 'linux'
+
+# deepspeed @ https://files.pythonhosted.org/packages/3d/65/1a6394f5d6dee851e9ea59e385f6d6428e3bfe36f83c06e0336e14dcfd11/deepspeed-0.16.4-cp310-cp310-win_amd64.whl ; sys_platform == 'win32'
+
+# deepspeed ; sys_platform == 'linux'
+
+sageattention @ https://huggingface.co/MonsterMMORPG/Wan_GGUF/resolve/main/sageattention-2.2.0+torch2.9.1.cuda13.1-cp39-abi3-win_amd64.whl ; sys_platform == 'win32'
+
+sageattention @ https://huggingface.co/MonsterMMORPG/Wan_GGUF/resolve/main/sageattention-2.2.0+torch2.9.1.cuda13.1-cp39-abi3-linux_x86_64.whl ; sys_platform == 'linux'
+
+triton-windows<3.7 ; sys_platform == 'win32'
+
+hf_xet
+gradio==6.5.1
+python-ffmpeg
+huggingface_hub
+accelerate
+bitsandbytes
+hf_transfer
+safetensors
+numpy
+tqdm
+psutil
+requests
+einops
+omegaconf
+diffusers
+peft
+transformers>=4.57.3,<5
+rotary_embedding_torch
+opencv-python
+matplotlib
+pillow
+spandrel
+git+https://github.com/FurkanGozukara/gfpgan.git
+scenedetect[opencv]
+git+https://github.com/FurkanGozukara/BasicSR.git
+facexlib
+git+https://github.com/FurkanGozukara/Real-ESRGAN.git
+sk-video

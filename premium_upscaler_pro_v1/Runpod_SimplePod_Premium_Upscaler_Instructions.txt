@@ -1,0 +1,55 @@
+
+
+SIMPLEPOD CHEAPER AND FASTER THAN RUNPOD
+
+Now we fully support SimplePod as well please use this link to register : https://simplepod.ai/ref?user=secourses
+
+SimplePod is faster and cheaper than RunPod and works exactly same
+
+Please use this template on SimplePod : https://dash.simplepod.ai/account/explore/100/ref-secourses/
+
+For permanent storage, generate it from Storage tab with any name and size you want and when selecting template with above link, click Edit and Use, select Persistence Volume and change mount point to /workspace
+
+Up-to-date SimplePod tutorial starting from 21:51 : https://youtu.be/yOj9PYq3XYM?si=Z86wZZLBeYzWo1Qo&t=1311
+
+RUNPOD
+
+Please register for RunPod at: https://get.runpod.io/955rkuppqv4h
+
+Example tutorial for learn how to install and use RunPod is below
+
+(starts at 22:03) : https://youtu.be/KW-MHmoNcqo?si=QN8X8Sjn13ZYu-EU&t=1323
+
+RunPod permanent network storage tutorial : https://youtu.be/8Qf4x3-DFf4
+
+Select this template mandatory (based on official Runpod Pytorch template) : https://get.runpod.io/SECourses_CU13
+
+Recommended GPU is RTX PRO 6000, but you can use any GPU. The more VRAM it is better
+
+You can edit template and change Volume Disk size. it is by default 200 GB and should be sufficient without any changes
+
+You can also use your permanent storage system - from filters select CUDA 12.8, 12.9, 13 and so on to get newer NVIDIA driver - only NVIDIA driver matter it must be 570+ for CUDA 13
+
+Upload all files into workspace extract all from zip file or directly upload extracted files
+
+Start a new terminal
+
+To install run below command
+
+cd /workspace
+export HF_HOME="/workspace"
+chmod +x RunPod_Install_SECourses_UpscalerPro.sh
+./RunPod_Install_SECourses_UpscalerPro.sh
+
+Installer will auto download all models but if you want download again / fix it run installer again above 
+
+To run the app again after installation later run below command - installation will auto start the app so use this later for re-starting the app
+
+cd /workspace/SECourses_Premium_Upscaler_Pro
+git pull
+source venv/bin/activate
+unset LD_LIBRARY_PATH
+python secourses_app.py --share
+
+
+
