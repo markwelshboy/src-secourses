@@ -1,0 +1,52 @@
+
+Example tutorial for learn how to install and use Massed Compute
+(Starts at 12:58) : https://youtu.be/KW-MHmoNcqo?si=G1WbG-Qw4ujWvOtG&t=778
+
+Register for Massed Compute using the following link I appreicate that a lot:
+https://vm.massedcompute.com/signup?linkId=lp_034338&sourceId=secourses&tenantId=massed-compute
+
+How to download and upload big files to Massed Compute tutorial : https://youtu.be/X5WVZ0NMaTg
+
+We have a special coupon for all GPUs : SECourses
+
+If you want to learn more about GPUs and prices read this link : https://www.patreon.com/posts/126671823
+
+Select RTX A6000 or Better GPU - like L40S or A6000 ADA or A100, H100 or RTX 6000 PRO - the bigger VRAM better for upscalers
+
+Use thinclient or login patreon on Massed Compute to download files on to your Massed Compute
+
+Put everything into a folder in like desktop or downloads
+
+Don't run scripts from inside of synchronization folder 
+
+I recommend just extract zip file into download folder on Massed Compute and run from there
+
+Open a terminal in the folder where you did put the files
+
+To install run below command
+
+It will first install our advanced trainer with Kohya Musubi Tuner backend and start it
+
+pip install huggingface_hub requests
+chmod +x Massed_Compute_Install.sh
+./Massed_Compute_Install.sh
+
+Then Our Advanced Trainer GUI will automatically start in browser with following URL and browser will be opened : http://127.0.0.1:7860
+
+To automatically download training models open a new terminal in the folder and execute below commands
+
+You can run this command same time as installation with opening another terminal
+
+Then download models (choose which model you want):
+
+python3 Download_Train_Models.py
+
+This above command will ask you which model to download choose from menu
+
+To run it again after install just open a CMD where you installed - installation will auto start the app so use this later for re-starting the app
+
+cd SECourses_Musubi_Trainer
+git pull
+source venv/bin/activate
+unset LD_LIBRARY_PATH
+python3 gui.py --share
