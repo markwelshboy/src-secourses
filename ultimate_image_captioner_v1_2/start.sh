@@ -32,7 +32,9 @@ sync_application() {
     "$WORKSPACE_APP_DIR/model_files_beta_one" \
     "$WORKSPACE_APP_DIR/model_files_qwen3_vl3_8b_instruct" \
     /workspace/logs "$TMPDIR"
-  [[ -d "$IMAGE_APP_DIR/presets" ]] && rsync -a --ignore-existing "$IMAGE_APP_DIR/presets/" "$WORKSPACE_APP_DIR/presets/"
+  if [[ -d "$IMAGE_APP_DIR/presets" ]]; then
+    rsync -a --ignore-existing "$IMAGE_APP_DIR/presets/" "$WORKSPACE_APP_DIR/presets/"
+  fi
   if [[ -f "$DOWNLOADER_SOURCE" ]]; then
     install -m 0644 "$DOWNLOADER_SOURCE" "$DOWNLOADER_TARGET"
     log "Installed model downloader at $DOWNLOADER_TARGET"
@@ -53,7 +55,10 @@ sync_pod_runtime() {
   else
     log "Cloning pod-runtime into $RUNTIME_DIR"
     rm -rf "$RUNTIME_DIR"
-    git clone --depth 1 "$RUNTIME_REPO_URL" "$RUNTIME_DIR" || { log "WARNING: pod-runtime clone failed; continuing without shell customizations"; return 0; }
+    git clone --depth 1 "$RUNTIME_REPO_URL" "$RUNTIME_DIR" || {
+      log "WARNING: pod-runtime clone failed; continuing without shell customizations"
+      return 0
+    }
   fi
   local tmp=/root/.bashrc.captioner.tmp
   if [[ -f "$RUNTIME_DIR/.bashrc" ]]; then
@@ -89,12 +94,18 @@ persist_telegram_environment() {
 install_authorized_keys() {
   install -d -m 0700 /root/.ssh
   local key_material=""
-  if [[ -n "${SSH_PUBLIC_KEY_B64:-}" ]]; then key_material="$(printf '%s' "$SSH_PUBLIC_KEY_B64" | base64 -d)"
-  elif [[ -n "${SSH_PUBLIC_KEY_FILE:-}" && -f "${SSH_PUBLIC_KEY_FILE}" ]]; then key_material="$(cat "${SSH_PUBLIC_KEY_FILE}")"
-  elif [[ -n "${SSH_PUBLIC_KEY:-}" ]]; then key_material="$SSH_PUBLIC_KEY"
-  elif [[ -n "${RUNPOD_SSH_PUBLIC_KEY:-}" ]]; then key_material="$RUNPOD_SSH_PUBLIC_KEY"
-  elif [[ -n "${PUBLIC_KEY:-}" ]]; then key_material="$PUBLIC_KEY"
-  elif [[ -n "${SSH_AUTHORIZED_KEYS:-}" ]]; then key_material="$SSH_AUTHORIZED_KEYS"
+  if [[ -n "${SSH_PUBLIC_KEY_B64:-}" ]]; then
+    key_material="$(printf '%s' "$SSH_PUBLIC_KEY_B64" | base64 -d)"
+  elif [[ -n "${SSH_PUBLIC_KEY_FILE:-}" && -f "${SSH_PUBLIC_KEY_FILE}" ]]; then
+    key_material="$(cat "${SSH_PUBLIC_KEY_FILE}")"
+  elif [[ -n "${SSH_PUBLIC_KEY:-}" ]]; then
+    key_material="$SSH_PUBLIC_KEY"
+  elif [[ -n "${RUNPOD_SSH_PUBLIC_KEY:-}" ]]; then
+    key_material="$RUNPOD_SSH_PUBLIC_KEY"
+  elif [[ -n "${PUBLIC_KEY:-}" ]]; then
+    key_material="$PUBLIC_KEY"
+  elif [[ -n "${SSH_AUTHORIZED_KEYS:-}" ]]; then
+    key_material="$SSH_AUTHORIZED_KEYS"
   fi
   if [[ -n "$key_material" ]]; then
     printf '%s\n' "$key_material" > /root/.ssh/authorized_keys
@@ -206,7 +217,10 @@ start_supervisor() {
   export SUPERVISOR_PID
   local attempt
   for attempt in {1..50}; do
-    if supervisorctl -c "$SUPERVISOR_CONFIG" status >/dev/null 2>&1; then log "Supervisor started (pid $SUPERVISOR_PID)"; return 0; fi
+    if supervisorctl -c "$SUPERVISOR_CONFIG" status >/dev/null 2>&1; then
+      log "Supervisor started (pid $SUPERVISOR_PID)"
+      return 0
+    fi
     sleep 0.1
   done
   log "FATAL: supervisor did not become ready"
@@ -215,8 +229,8 @@ start_supervisor() {
 
 cleanup() {
   local rc=$?
-  [[ -n "${SUPERVISOR_PID:-}" ]] && kill "$SUPERVISOR_PID" 2>/dev/null || true
-  [[ -n "${SSHD_PID:-}" ]] && kill "$SSHD_PID" 2>/dev/null || true
+  if [[ -n "${SUPERVISOR_PID:-}" ]]; then kill "$SUPERVISOR_PID" 2>/dev/null || true; fi
+  if [[ -n "${SSHD_PID:-}" ]]; then kill "$SSHD_PID" 2>/dev/null || true; fi
   exit "$rc"
 }
 trap cleanup EXIT INT TERM
@@ -248,7 +262,9 @@ case "${CAPTIONER_AUTO_START:-true}" in
     log "App log: $CAPTIONER_LOG"
     log "Controls: captionerctl status|restart|logs|doctor"
     ;;
-  *) log "CAPTIONER_AUTO_START is disabled; use 'captionerctl start' when ready" ;;
+  *)
+    log "CAPTIONER_AUTO_START is disabled; use 'captionerctl start' when ready"
+    ;;
 esac
 
 wait "$SUPERVISOR_PID"
