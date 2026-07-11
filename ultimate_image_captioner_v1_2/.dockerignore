@@ -6,3 +6,6 @@
 !launch-captioner.sh
 !captionerctl.sh
 !download-models.sh
+!telegram-notify.sh
+!captioner-bootstrap.sh
+!captioner-nag.sh
