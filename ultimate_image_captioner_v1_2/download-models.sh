@@ -12,9 +12,9 @@ notify_finished() {
   trap - EXIT
   local elapsed=$(( $(date +%s) - STARTED_AT ))
   if (( rc == 0 )); then
-    telegram-notify "✅ Model download/verification finished successfully in ${elapsed}s."
+    telegram-notify "✅ Model download/verification finished successfully in ${elapsed}s." || true
   else
-    telegram-notify "❌ Model download failed after ${elapsed}s with exit code ${rc}. Check the pod logs."
+    telegram-notify "❌ Model download failed after ${elapsed}s with exit code ${rc}. Check the pod logs." || true
   fi
   exit "$rc"
 }
@@ -37,7 +37,7 @@ export HF_HOME="${HF_HOME:-/workspace}"
 #   /workspace/Ultimate_Image_Captioner_Pro
 cd /workspace
 
-telegram-notify "⬇️ Model download/verification started."
+telegram-notify "⬇️ Model download/verification started." || true
 echo "[download-captioner-models] Downloader: $DOWNLOADER"
 echo "[download-captioner-models] Target:     $APP_DIR"
 "$PYTHON_BIN" "$DOWNLOADER"
