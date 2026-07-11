@@ -36,8 +36,6 @@ sync_application() {
 
   mkdir -p "$WORKSPACE_APP_DIR"
 
-  # Refresh image-owned application code without deleting persistent state.
-  # Preserve a legacy nested downloader target so it can be repaired safely.
   rsync -a --delete \
     --exclude='.git/' \
     --exclude='outputs/' \
@@ -55,7 +53,6 @@ sync_application() {
     /workspace/logs \
     "$TMPDIR"
 
-  # Seed newly shipped presets while preserving user changes and additions.
   if [[ -d "$IMAGE_APP_DIR/presets" ]]; then
     rsync -a --ignore-existing "$IMAGE_APP_DIR/presets/" "$WORKSPACE_APP_DIR/presets/"
   fi
@@ -154,7 +151,6 @@ install_authorized_keys() {
 start_ssh() {
   mkdir -p /run/sshd /var/run/sshd /etc/ssh/sshd_config.d
   ssh-keygen -A
-  # Unlock the root account for public-key auth only; password auth remains disabled.
   passwd -d root >/dev/null 2>&1 || true
 
   cat > /etc/ssh/sshd_config.d/99-ultimate-captioner.conf <<'SSHD'
