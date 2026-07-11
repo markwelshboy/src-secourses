@@ -20,5 +20,5 @@ while true; do
   telegram-notify "💸 Pod is still running — remember to stop it when finished.
 App: ${APP_STATUS}
 Uptime: ${UPTIME}
-GPU: ${GPU}"
+GPU: ${GPU}" || true
 done
