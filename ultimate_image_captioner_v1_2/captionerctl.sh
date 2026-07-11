@@ -15,11 +15,23 @@ status() {
   supervisor status "$PROGRAM_NAME"
 }
 
+services() {
+  supervisor status
+}
+
 logs() {
   local lines="${1:-200}"
   mkdir -p "$(dirname "$LOG_FILE")"
   touch "$LOG_FILE"
   tail -n "$lines" -F "$LOG_FILE"
+}
+
+service_logs() {
+  local name="${1:?service name required}"
+  local lines="${2:-200}"
+  local file="/workspace/logs/${name}.log"
+  touch "$file"
+  tail -n "$lines" -F "$file"
 }
 
 doctor() {
@@ -107,10 +119,15 @@ Usage: captionerctl COMMAND
 
 Commands:
   status                         Show app status
+  services                       Show app, bootstrap, and nag services
   start                          Start the app
   stop                           Stop the app
   restart                        Restart the app
   logs [LINES]                   Follow the persistent app log (default 200 lines)
+  bootstrap-logs [LINES]         Follow automatic download/bootstrap log
+  nag-logs [LINES]               Follow Telegram nag log
+  download                       Run model download/verification manually
+  telegram-test [MESSAGE]        Send a Telegram test message
   doctor                         Check CUDA and local model/processor files
   repair-download-layout         Merge an accidentally nested downloader target
 EOF_USAGE
@@ -121,8 +138,13 @@ shift || true
 
 case "$command" in
   status) status ;;
+  services) services ;;
   start|stop|restart) supervisor "$command" "$PROGRAM_NAME" ;;
   logs) logs "${1:-200}" ;;
+  bootstrap-logs) service_logs captioner-bootstrap "${1:-200}" ;;
+  nag-logs) service_logs captioner-nag "${1:-200}" ;;
+  download) download-captioner-models ;;
+  telegram-test) telegram-notify "${*:-Test message from Ultimate Image Captioner}" ;;
   doctor) doctor ;;
   repair-download-layout|repair) repair_download_layout ;;
   help|-h|--help) usage ;;
