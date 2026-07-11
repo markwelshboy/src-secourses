@@ -1,0 +1,29 @@
+
+--extra-index-url https://download.pytorch.org/whl/cu130
+torch==2.11.0
+torchvision
+
+triton<3.8; sys_platform == 'linux'
+triton-windows<3.8; sys_platform == 'win32'
+
+liger_kernel @ https://huggingface.co/MonsterMMORPG/SECourses_Premium_Flash_Attention/resolve/main/liger_kernel-0.5.8-py3-none-any.whl ; sys_platform == 'win32'
+
+liger_kernel==0.5.8 ; sys_platform == 'linux'
+
+huggingface_hub
+hf_xet
+hf_transfer
+accelerate
+transformers
+sentencepiece
+gradio==6.19.0
+protobuf
+bitsandbytes
+numpy
+peft
+pillow-heif
+requests
+
+flash_attn @ https://huggingface.co/MonsterMMORPG/Wan_GGUF/resolve/main/flash_attn-2.8.3+cu130torch211cuda131v283sm86sm89sm120sm120a-cp311-cp311-win_amd64.whl ; sys_platform == 'win32'
+
+flash_attn @ https://huggingface.co/MonsterMMORPG/Wan_GGUF/resolve/main/flash_attn-2.8.3+cu130torch211cuda13fa2v283sm80sm86sm89sm90sm100sm103sm120-cp311-cp311-linux_x86_64.whl ; sys_platform == 'linux'

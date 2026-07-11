@@ -1,0 +1,62 @@
+
+Example tutorial for learn how to install and use Massed Compute
+(Starts at 12:58) : https://youtu.be/KW-MHmoNcqo?si=G1WbG-Qw4ujWvOtG&t=778
+
+Register for Massed Compute using the following link I appreicate that a lot:
+https://vm.massedcompute.com/signup?linkId=lp_034338&sourceId=secourses&tenantId=massed-compute
+
+We have a special coupon for all GPUs : SECourses
+
+If you want to learn more about GPUs and prices read this link : https://www.patreon.com/posts/126671823
+
+Select RTX A6000 or Better GPU - like L40S or RTX A6000 ADA or A100 or H100
+
+RTX A6000 ADA is really performant and cheap GPU
+
+Make sure that each copy paste is accurate
+
+Sometimes Massed Compute don't properly copy paste
+
+Use ThinLinc client or login Patreon on Massed Compute to download files on to your Massed Compute
+
+Put everything into a folder can be inside apps or desktop or such etc
+
+Don't run scripts from inside of synchronization / thindrives folder 
+
+Setup Instructions:
+
+a. Create a folder (e.g., "JoyCaption") in a location of your choice (such as Apps or Desktop).
+
+b. Place all downloaded files into this folder.
+
+c. Open a terminal in the folder containing your files.
+
+Installation:
+
+Run the following commands in the terminal:
+
+chmod +x Massed_Compute_Install.sh
+./Massed_Compute_Install.sh
+
+Usage After Installation:
+
+a. Open a new terminal in the folder where you downloaded and executed the files.
+
+b. Run the following commands for starting the Joy Caption Beta One
+
+Beta One is latest very best model
+
+cd Ultimate_Image_Captioner_Pro
+export PYTHONWARNINGS="ignore"
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
+source venv/bin/activate
+python3 app.py --share 
+
+Note: Remove the "--share" flag if you don't want to use Gradio live.
+
+The Gradio live URL can be accessed from your computer, tablet, or phone.
+
+
+
+
