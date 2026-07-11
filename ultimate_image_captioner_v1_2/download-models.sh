@@ -5,6 +5,20 @@ PYTHON_BIN="${CAPTIONER_PYTHON:-/opt/venv/bin/python}"
 DOWNLOADER="${CAPTIONER_DOWNLOADER:-/workspace/HF_model_downloader.py}"
 DOWNLOADER_SOURCE="${CAPTIONER_DOWNLOADER_SOURCE:-/opt/ultimate-image-captioner-tools/HF_model_downloader.py}"
 APP_DIR="${CAPTIONER_WORKSPACE_DIR:-/workspace/Ultimate_Image_Captioner_Pro}"
+STARTED_AT="$(date +%s)"
+
+notify_finished() {
+  local rc=$?
+  trap - EXIT
+  local elapsed=$(( $(date +%s) - STARTED_AT ))
+  if (( rc == 0 )); then
+    telegram-notify "✅ Model download/verification finished successfully in ${elapsed}s."
+  else
+    telegram-notify "❌ Model download failed after ${elapsed}s with exit code ${rc}. Check the pod logs."
+  fi
+  exit "$rc"
+}
+trap notify_finished EXIT
 
 mkdir -p /workspace "$APP_DIR"
 
@@ -23,6 +37,7 @@ export HF_HOME="${HF_HOME:-/workspace}"
 #   /workspace/Ultimate_Image_Captioner_Pro
 cd /workspace
 
+telegram-notify "⬇️ Model download/verification started."
 echo "[download-captioner-models] Downloader: $DOWNLOADER"
 echo "[download-captioner-models] Target:     $APP_DIR"
-exec "$PYTHON_BIN" "$DOWNLOADER"
+"$PYTHON_BIN" "$DOWNLOADER"
