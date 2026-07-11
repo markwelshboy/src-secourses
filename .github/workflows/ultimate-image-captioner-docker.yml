@@ -13,6 +13,9 @@ name: Build Ultimate Image Captioner image
       - "ultimate_image_captioner_v1_2/launch-captioner.sh"
       - "ultimate_image_captioner_v1_2/captionerctl.sh"
       - "ultimate_image_captioner_v1_2/download-models.sh"
+      - "ultimate_image_captioner_v1_2/telegram-notify.sh"
+      - "ultimate_image_captioner_v1_2/captioner-bootstrap.sh"
+      - "ultimate_image_captioner_v1_2/captioner-nag.sh"
       - ".github/workflows/ultimate-image-captioner-docker.yml"
 
 permissions:
