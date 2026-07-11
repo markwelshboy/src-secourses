@@ -2,7 +2,7 @@
 
 This build follows the same general container pattern as `comfyui-inference-headless-to-desktop`: an NVIDIA CUDA/Ubuntu base, a dedicated virtual environment, common pod tools, OpenSSH, a persistent `/workspace`, and a small entrypoint that pulls `markwelshboy/pod-runtime` at startup.
 
-The supplied captioner stack is installed during the image build. `HF_model_downloader.py` is **not** run in the build or entrypoint; model downloads remain a runtime operation.
+The supplied captioner stack and `HF_model_downloader.py` are included in the image. Model weights are not baked into the image; they remain a runtime download into persistent `/workspace` storage.
 
 ## Image names
 
@@ -69,23 +69,80 @@ presets/
 model_files_*/
 ```
 
-This keeps the path expected by the original instructions and by `HF_model_downloader.py`, while allowing an image update to refresh application code. Newly shipped preset files are seeded without replacing existing user files.
+The downloader is baked into the image and installed at startup as:
+
+```text
+/workspace/HF_model_downloader.py
+```
+
+Keeping it at `/workspace` is important because the downloader calculates its default target relative to its own file location. Its target therefore becomes `/workspace/Ultimate_Image_Captioner_Pro`, rather than creating a nested application directory.
 
 ## Download models at runtime
 
-Place the existing downloader at `/workspace/HF_model_downloader.py`, then run:
+Use the included wrapper:
 
 ```bash
-cd /workspace
-export HF_HOME=/workspace
-/opt/venv/bin/python HF_model_downloader.py
+download-captioner-models
 ```
 
-Because the script is located in `/workspace`, its default target becomes `/workspace/Ultimate_Image_Captioner_Pro`.
+That command runs `/workspace/HF_model_downloader.py` with the image's Python environment and downloads into:
+
+```text
+/workspace/Ultimate_Image_Captioner_Pro
+```
+
+After a first-time model download, restart the application so any failed lazy model state is cleared:
+
+```bash
+captionerctl restart
+```
+
+## Application control and logs
+
+The application runs under Supervisor, independently of SSH. Available commands are:
+
+```bash
+captionerctl status
+captionerctl start
+captionerctl stop
+captionerctl restart
+captionerctl logs
+captionerctl doctor
+```
+
+The persistent application log is:
+
+```text
+/workspace/logs/captioner.log
+```
+
+Supervisor's own log is:
+
+```text
+/workspace/logs/supervisord.log
+```
+
+`captionerctl doctor` checks CUDA availability, inspects the expected Qwen model directory, detects the common nested-downloader layout, and attempts a local `AutoProcessor` load.
+
+If an older image was used to run `HF_model_downloader.py` from inside the application directory, it may have created:
+
+```text
+/workspace/Ultimate_Image_Captioner_Pro/Ultimate_Image_Captioner_Pro
+```
+
+Repair that layout with:
+
+```bash
+captionerctl repair-download-layout
+captionerctl doctor
+captionerctl restart
+```
+
+The repair merges missing files into the correct application directory but deliberately leaves the nested source directory in place until it is manually verified and removed.
 
 ## Launching
 
-The container starts the app automatically with the equivalent container-safe command:
+The container starts the app automatically through Supervisor with the equivalent container-safe command:
 
 ```bash
 cd /workspace/Ultimate_Image_Captioner_Pro
@@ -99,13 +156,13 @@ export PYTHONIOENCODING=utf-8
   --no-inbrowser
 ```
 
-Set `GRADIO_SHARE=true` to add `--share`. The manual launcher is:
+Set `GRADIO_SHARE=true` to add `--share`. The low-level manual launcher is:
 
 ```bash
 launch-captioner
 ```
 
-Set `CAPTIONER_AUTO_START=false` for an SSH-only troubleshooting pod.
+Set `CAPTIONER_AUTO_START=false` for an SSH-first troubleshooting pod, then start it with `captionerctl start`.
 
 ## GitHub Actions publishing
 
