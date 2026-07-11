@@ -126,7 +126,7 @@ Keeping it at `/workspace` is important because the downloader calculates its de
 Automatic downloading is enabled by default. To run it manually:
 
 ```bash
-download-captioner-models
+captionerctl download
 captionerctl doctor
 captionerctl restart
 ```
@@ -139,10 +139,15 @@ The application runs under Supervisor, independently of SSH. Available commands 
 
 ```bash
 captionerctl status
+captionerctl services
 captionerctl start
 captionerctl stop
 captionerctl restart
 captionerctl logs
+captionerctl bootstrap-logs
+captionerctl nag-logs
+captionerctl download
+captionerctl telegram-test
 captionerctl doctor
 ```
 
@@ -166,7 +171,7 @@ supervisorctl -c /etc/supervisor/conf.d/ultimate-captioner.conf status
 To test Telegram manually:
 
 ```bash
-telegram-notify "Test message from the captioner pod"
+captionerctl telegram-test "Test message from the captioner pod"
 ```
 
 `captionerctl doctor` checks CUDA availability, inspects the expected Qwen model directory, detects the common nested-downloader layout, and attempts a local `AutoProcessor` load.
