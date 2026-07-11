@@ -9,14 +9,23 @@ DOWNLOADER_SOURCE="${CAPTIONER_DOWNLOADER_SOURCE:-/opt/ultimate-image-captioner-
 DOWNLOADER_TARGET="${CAPTIONER_DOWNLOADER:-/workspace/HF_model_downloader.py}"
 SUPERVISOR_CONFIG="${CAPTIONER_SUPERVISOR_CONFIG:-/etc/supervisor/conf.d/ultimate-captioner.conf}"
 CAPTIONER_LOG="${CAPTIONER_LOG_FILE:-/workspace/logs/captioner.log}"
+TELEGRAM_ENV_FILE="${TELEGRAM_ENV_FILE:-/root/.secrets/telegram.env}"
 
 export POD_RUNTIME_DIR="$RUNTIME_DIR"
 export TMPDIR="${TMPDIR:-/workspace/tmp}"
 export TEMP="${TEMP:-$TMPDIR}"
 export TMP="${TMP:-$TMPDIR}"
+export TELEGRAM_ENV_FILE
 
 log() {
   printf '[captioner-start] %s\n' "$*"
+}
+
+is_true() {
+  case "${1:-}" in
+    1|true|TRUE|yes|YES|on|ON) return 0 ;;
+    *) return 1 ;;
+  esac
 }
 
 sync_application() {
@@ -91,6 +100,25 @@ sync_pod_runtime() {
   for file in .bash_functions .bash_aliases .bash_prompt .git-qol.sh; do
     [[ -f "$RUNTIME_DIR/$file" ]] && install -m 0644 "$RUNTIME_DIR/$file" "/root/$file"
   done
+}
+
+persist_telegram_environment() {
+  mkdir -p "$(dirname "$TELEGRAM_ENV_FILE")"
+  umask 077
+  {
+    printf '# Generated %s\n' "$(date -Is)"
+    printf 'export TELEGRAM_BOT_TOKEN=%q\n' "${TELEGRAM_BOT_TOKEN:-}"
+    printf 'export TELEGRAM_CHAT_ID=%q\n' "${TELEGRAM_CHAT_ID:-}"
+    printf 'export TELEGRAM_NAME=%q\n' "${TELEGRAM_NAME:-ultimate-image-captioner}"
+  } > "$TELEGRAM_ENV_FILE"
+  chmod 0600 "$TELEGRAM_ENV_FILE"
+  umask 022
+
+  if [[ -n "${TELEGRAM_BOT_TOKEN:-}" && -n "${TELEGRAM_CHAT_ID:-}" ]]; then
+    log "Telegram notifications enabled as ${TELEGRAM_NAME:-ultimate-image-captioner}"
+  else
+    log "Telegram notifications disabled; TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID not both set"
+  fi
 }
 
 install_authorized_keys() {
@@ -187,6 +215,35 @@ redirect_stderr=true
 stdout_logfile=$CAPTIONER_LOG
 stdout_logfile_maxbytes=50MB
 stdout_logfile_backups=3
+
+[program:captioner-bootstrap]
+command=/usr/local/bin/captioner-bootstrap
+directory=/workspace
+user=root
+autostart=false
+autorestart=false
+startsecs=0
+startretries=0
+redirect_stderr=true
+stdout_logfile=/workspace/logs/captioner-bootstrap.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=2
+
+[program:captioner-nag]
+command=/usr/local/bin/captioner-nag
+directory=/workspace
+user=root
+autostart=false
+autorestart=true
+startsecs=1
+startretries=3
+stopsignal=TERM
+stopasgroup=true
+killasgroup=true
+redirect_stderr=true
+stdout_logfile=/workspace/logs/captioner-nag.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=2
 EOF_SUPERVISOR
 }
 
@@ -222,6 +279,7 @@ trap cleanup EXIT INT TERM
 
 sync_application
 sync_pod_runtime
+persist_telegram_environment
 install_authorized_keys
 start_ssh
 configure_supervisor
@@ -233,10 +291,17 @@ if (( $# > 0 )); then
   exit $?
 fi
 
+if [[ -n "${TELEGRAM_BOT_TOKEN:-}" && -n "${TELEGRAM_CHAT_ID:-}" ]] && \
+   is_true "${TELEGRAM_NAG_ENABLED:-true}"; then
+  supervisorctl -c "$SUPERVISOR_CONFIG" start captioner-nag
+  log "Telegram pod nag enabled every ${TELEGRAM_NAG_INTERVAL_SECONDS:-1800}s"
+fi
+
 case "${CAPTIONER_AUTO_START:-true}" in
   1|true|TRUE|yes|YES)
     log "Starting Ultimate Image Captioner on port ${GRADIO_SERVER_PORT:-7861}"
     supervisorctl -c "$SUPERVISOR_CONFIG" start captioner
+    supervisorctl -c "$SUPERVISOR_CONFIG" start captioner-bootstrap
     log "App log: $CAPTIONER_LOG"
     log "Controls: captionerctl status|restart|logs|doctor"
     ;;
