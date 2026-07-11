@@ -26,6 +26,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     VENV=/opt/venv \
     CAPTIONER_IMAGE_DIR=/opt/Ultimate_Image_Captioner_Pro \
     CAPTIONER_WORKSPACE_DIR=/workspace/Ultimate_Image_Captioner_Pro \
+    CAPTIONER_DOWNLOADER_SOURCE=/opt/ultimate-image-captioner-tools/HF_model_downloader.py \
+    CAPTIONER_DOWNLOADER=/workspace/HF_model_downloader.py \
+    CAPTIONER_LOG_FILE=/workspace/logs/captioner.log \
     HF_HOME=/workspace
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -46,7 +49,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
        ffmpeg aria2 rsync tmux unzip wget vim less nano \
        bash-completion net-tools iproute2 iputils-ping procps lsof \
        libgl1 libglib2.0-0 libsm6 libxext6 \
-       openssh-server \
+       openssh-server supervisor \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /run/sshd /var/run/sshd /workspace /workspace/logs \
     && git lfs install --system \
@@ -59,8 +62,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY requirements_premium_caption.txt /tmp/requirements_premium_caption.txt
 
-# Install the stack from Runpod_Ultimate_Caption_Install.sh. The model
-# downloader is intentionally not run during the image build.
+# Install the stack from Runpod_Ultimate_Caption_Install.sh. Models remain a
+# runtime download, but the downloader itself is included in the image.
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install \
       --python "${VENV}/bin/python" \
@@ -82,7 +85,10 @@ RUN git clone --depth 1 "${CAPTIONER_REPO}" "${CAPTIONER_IMAGE_DIR}" \
        "${CAPTIONER_IMAGE_DIR}/outputs" \
        "${CAPTIONER_IMAGE_DIR}/presets" \
        "${CAPTIONER_IMAGE_DIR}/model_files_beta_one" \
-       "${CAPTIONER_IMAGE_DIR}/model_files_qwen3_vl3_8b_instruct"
+       "${CAPTIONER_IMAGE_DIR}/model_files_qwen3_vl3_8b_instruct" \
+       /opt/ultimate-image-captioner-tools
+
+COPY HF_model_downloader.py /opt/ultimate-image-captioner-tools/HF_model_downloader.py
 
 RUN python - <<'PY'
 import sys
@@ -101,9 +107,17 @@ print("transformers:", transformers.__version__)
 print("xformers:", xformers.__version__)
 PY
 
+RUN python -m py_compile /opt/ultimate-image-captioner-tools/HF_model_downloader.py
+
 COPY start.sh /usr/local/bin/start-captioner-container
 COPY launch-captioner.sh /usr/local/bin/launch-captioner
-RUN chmod 0755 /usr/local/bin/start-captioner-container /usr/local/bin/launch-captioner
+COPY captionerctl.sh /usr/local/bin/captionerctl
+COPY download-models.sh /usr/local/bin/download-captioner-models
+RUN chmod 0755 \
+      /usr/local/bin/start-captioner-container \
+      /usr/local/bin/launch-captioner \
+      /usr/local/bin/captionerctl \
+      /usr/local/bin/download-captioner-models
 
 WORKDIR /workspace
 EXPOSE 22 7861
