@@ -26,9 +26,9 @@ wait_for_app() {
 }
 
 if wait_for_app; then
-  telegram-notify "🟢 Pod started and Ultimate Image Captioner is up on port ${SERVER_PORT}."
+  telegram-notify "🟢 Pod started and Ultimate Image Captioner is up on port ${SERVER_PORT}." || true
 else
-  telegram-notify "🔴 Pod started, but Ultimate Image Captioner did not become ready within ${READY_TIMEOUT}s. Check /workspace/logs/captioner.log."
+  telegram-notify "🔴 Pod started, but Ultimate Image Captioner did not become ready within ${READY_TIMEOUT}s. Check /workspace/logs/captioner.log." || true
   exit 1
 fi
 
@@ -51,9 +51,9 @@ if is_true "$RESTART_AFTER_DOWNLOAD"; then
   echo "[captioner-bootstrap] Restarting app after model download"
   supervisorctl -c "$SUPERVISOR_CONFIG" restart captioner
   if wait_for_app; then
-    telegram-notify "🔄 Model download finished; Ultimate Image Captioner restarted and is ready."
+    telegram-notify "🔄 Model download finished; Ultimate Image Captioner restarted and is ready." || true
   else
-    telegram-notify "⚠️ Model download finished, but the app did not become ready after restart. Check /workspace/logs/captioner.log."
+    telegram-notify "⚠️ Model download finished, but the app did not become ready after restart. Check /workspace/logs/captioner.log." || true
     exit 1
   fi
 fi
