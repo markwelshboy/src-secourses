@@ -17,53 +17,28 @@ export TEMP="${TEMP:-$TMPDIR}"
 export TMP="${TMP:-$TMPDIR}"
 export TELEGRAM_ENV_FILE
 
-log() {
-  printf '[captioner-start] %s\n' "$*"
-}
-
-is_true() {
-  case "${1:-}" in
-    1|true|TRUE|yes|YES|on|ON) return 0 ;;
-    *) return 1 ;;
-  esac
-}
+log() { printf '[captioner-start] %s\n' "$*"; }
+is_true() { case "${1:-}" in 1|true|TRUE|yes|YES|on|ON) return 0 ;; *) return 1 ;; esac; }
 
 sync_application() {
-  if [[ ! -f "$IMAGE_APP_DIR/app.py" ]]; then
-    log "FATAL: baked application not found at $IMAGE_APP_DIR"
-    exit 1
-  fi
-
+  [[ -f "$IMAGE_APP_DIR/app.py" ]] || { log "FATAL: baked application not found at $IMAGE_APP_DIR"; exit 1; }
   mkdir -p "$WORKSPACE_APP_DIR"
-
   rsync -a --delete \
-    --exclude='.git/' \
-    --exclude='outputs/' \
-    --exclude='presets/' \
-    --exclude='model_files_*/' \
-    --exclude='.cache/' \
+    --exclude='.git/' --exclude='outputs/' --exclude='presets/' \
+    --exclude='model_files_*/' --exclude='.cache/' \
     --exclude='Ultimate_Image_Captioner_Pro/' \
     "$IMAGE_APP_DIR/" "$WORKSPACE_APP_DIR/"
-
-  mkdir -p \
-    "$WORKSPACE_APP_DIR/outputs" \
-    "$WORKSPACE_APP_DIR/presets" \
+  mkdir -p "$WORKSPACE_APP_DIR/outputs" "$WORKSPACE_APP_DIR/presets" \
     "$WORKSPACE_APP_DIR/model_files_beta_one" \
     "$WORKSPACE_APP_DIR/model_files_qwen3_vl3_8b_instruct" \
-    /workspace/logs \
-    "$TMPDIR"
-
-  if [[ -d "$IMAGE_APP_DIR/presets" ]]; then
-    rsync -a --ignore-existing "$IMAGE_APP_DIR/presets/" "$WORKSPACE_APP_DIR/presets/"
-  fi
-
+    /workspace/logs "$TMPDIR"
+  [[ -d "$IMAGE_APP_DIR/presets" ]] && rsync -a --ignore-existing "$IMAGE_APP_DIR/presets/" "$WORKSPACE_APP_DIR/presets/"
   if [[ -f "$DOWNLOADER_SOURCE" ]]; then
     install -m 0644 "$DOWNLOADER_SOURCE" "$DOWNLOADER_TARGET"
     log "Installed model downloader at $DOWNLOADER_TARGET"
   else
     log "WARNING: baked model downloader not found at $DOWNLOADER_SOURCE"
   fi
-
   if [[ -d "$WORKSPACE_APP_DIR/Ultimate_Image_Captioner_Pro" ]]; then
     log "WARNING: nested downloader target detected at $WORKSPACE_APP_DIR/Ultimate_Image_Captioner_Pro"
     log "         Run 'captionerctl repair-download-layout', then 'captionerctl doctor'."
@@ -72,19 +47,14 @@ sync_application() {
 
 sync_pod_runtime() {
   mkdir -p /workspace
-
   if [[ -d "$RUNTIME_DIR/.git" ]]; then
     log "Updating pod-runtime in $RUNTIME_DIR"
     git -C "$RUNTIME_DIR" pull --rebase --autostash || true
   else
     log "Cloning pod-runtime into $RUNTIME_DIR"
     rm -rf "$RUNTIME_DIR"
-    git clone --depth 1 "$RUNTIME_REPO_URL" "$RUNTIME_DIR" || {
-      log "WARNING: pod-runtime clone failed; continuing without shell customizations"
-      return 0
-    }
+    git clone --depth 1 "$RUNTIME_REPO_URL" "$RUNTIME_DIR" || { log "WARNING: pod-runtime clone failed; continuing without shell customizations"; return 0; }
   fi
-
   local tmp=/root/.bashrc.captioner.tmp
   if [[ -f "$RUNTIME_DIR/.bashrc" ]]; then
     cp "$RUNTIME_DIR/.bashrc" "$tmp"
@@ -92,7 +62,6 @@ sync_pod_runtime() {
     install -m 0644 "$tmp" /root/.bashrc
     rm -f "$tmp"
   fi
-
   local file
   for file in .bash_functions .bash_aliases .bash_prompt .git-qol.sh; do
     [[ -f "$RUNTIME_DIR/$file" ]] && install -m 0644 "$RUNTIME_DIR/$file" "/root/$file"
@@ -110,7 +79,6 @@ persist_telegram_environment() {
   } > "$TELEGRAM_ENV_FILE"
   chmod 0600 "$TELEGRAM_ENV_FILE"
   umask 022
-
   if [[ -n "${TELEGRAM_BOT_TOKEN:-}" && -n "${TELEGRAM_CHAT_ID:-}" ]]; then
     log "Telegram notifications enabled as ${TELEGRAM_NAME:-ultimate-image-captioner}"
   else
@@ -120,22 +88,14 @@ persist_telegram_environment() {
 
 install_authorized_keys() {
   install -d -m 0700 /root/.ssh
-
   local key_material=""
-  if [[ -n "${SSH_PUBLIC_KEY_B64:-}" ]]; then
-    key_material="$(printf '%s' "$SSH_PUBLIC_KEY_B64" | base64 -d)"
-  elif [[ -n "${SSH_PUBLIC_KEY_FILE:-}" && -f "${SSH_PUBLIC_KEY_FILE}" ]]; then
-    key_material="$(cat "${SSH_PUBLIC_KEY_FILE}")"
-  elif [[ -n "${SSH_PUBLIC_KEY:-}" ]]; then
-    key_material="$SSH_PUBLIC_KEY"
-  elif [[ -n "${RUNPOD_SSH_PUBLIC_KEY:-}" ]]; then
-    key_material="$RUNPOD_SSH_PUBLIC_KEY"
-  elif [[ -n "${PUBLIC_KEY:-}" ]]; then
-    key_material="$PUBLIC_KEY"
-  elif [[ -n "${SSH_AUTHORIZED_KEYS:-}" ]]; then
-    key_material="$SSH_AUTHORIZED_KEYS"
+  if [[ -n "${SSH_PUBLIC_KEY_B64:-}" ]]; then key_material="$(printf '%s' "$SSH_PUBLIC_KEY_B64" | base64 -d)"
+  elif [[ -n "${SSH_PUBLIC_KEY_FILE:-}" && -f "${SSH_PUBLIC_KEY_FILE}" ]]; then key_material="$(cat "${SSH_PUBLIC_KEY_FILE}")"
+  elif [[ -n "${SSH_PUBLIC_KEY:-}" ]]; then key_material="$SSH_PUBLIC_KEY"
+  elif [[ -n "${RUNPOD_SSH_PUBLIC_KEY:-}" ]]; then key_material="$RUNPOD_SSH_PUBLIC_KEY"
+  elif [[ -n "${PUBLIC_KEY:-}" ]]; then key_material="$PUBLIC_KEY"
+  elif [[ -n "${SSH_AUTHORIZED_KEYS:-}" ]]; then key_material="$SSH_AUTHORIZED_KEYS"
   fi
-
   if [[ -n "$key_material" ]]; then
     printf '%s\n' "$key_material" > /root/.ssh/authorized_keys
     chmod 0600 /root/.ssh/authorized_keys
@@ -152,7 +112,6 @@ start_ssh() {
   mkdir -p /run/sshd /var/run/sshd /etc/ssh/sshd_config.d
   ssh-keygen -A
   passwd -d root >/dev/null 2>&1 || true
-
   cat > /etc/ssh/sshd_config.d/99-ultimate-captioner.conf <<'SSHD'
 PermitRootLogin prohibit-password
 PasswordAuthentication no
@@ -165,7 +124,6 @@ GatewayPorts no
 ClientAliveInterval 60
 ClientAliveCountMax 3
 SSHD
-
   /usr/sbin/sshd -D -e &
   SSHD_PID=$!
   export SSHD_PID
@@ -175,7 +133,6 @@ SSHD
 configure_supervisor() {
   mkdir -p /run /workspace/logs "$(dirname "$SUPERVISOR_CONFIG")"
   touch "$CAPTIONER_LOG"
-
   cat > "$SUPERVISOR_CONFIG" <<EOF_SUPERVISOR
 [unix_http_server]
 file=/run/ultimate-captioner-supervisor.sock
@@ -247,28 +204,19 @@ start_supervisor() {
   /usr/bin/supervisord -n -c "$SUPERVISOR_CONFIG" &
   SUPERVISOR_PID=$!
   export SUPERVISOR_PID
-
   local attempt
   for attempt in {1..50}; do
-    if supervisorctl -c "$SUPERVISOR_CONFIG" status >/dev/null 2>&1; then
-      log "Supervisor started (pid $SUPERVISOR_PID)"
-      return 0
-    fi
+    if supervisorctl -c "$SUPERVISOR_CONFIG" status >/dev/null 2>&1; then log "Supervisor started (pid $SUPERVISOR_PID)"; return 0; fi
     sleep 0.1
   done
-
   log "FATAL: supervisor did not become ready"
   return 1
 }
 
 cleanup() {
   local rc=$?
-  if [[ -n "${SUPERVISOR_PID:-}" ]]; then
-    kill "$SUPERVISOR_PID" 2>/dev/null || true
-  fi
-  if [[ -n "${SSHD_PID:-}" ]]; then
-    kill "$SSHD_PID" 2>/dev/null || true
-  fi
+  [[ -n "${SUPERVISOR_PID:-}" ]] && kill "$SUPERVISOR_PID" 2>/dev/null || true
+  [[ -n "${SSHD_PID:-}" ]] && kill "$SSHD_PID" 2>/dev/null || true
   exit "$rc"
 }
 trap cleanup EXIT INT TERM
@@ -287,8 +235,7 @@ if (( $# > 0 )); then
   exit $?
 fi
 
-if [[ -n "${TELEGRAM_BOT_TOKEN:-}" && -n "${TELEGRAM_CHAT_ID:-}" ]] && \
-   is_true "${TELEGRAM_NAG_ENABLED:-true}"; then
+if [[ -n "${TELEGRAM_BOT_TOKEN:-}" && -n "${TELEGRAM_CHAT_ID:-}" ]] && is_true "${TELEGRAM_NAG_ENABLED:-true}"; then
   supervisorctl -c "$SUPERVISOR_CONFIG" start captioner-nag
   log "Telegram pod nag enabled every ${TELEGRAM_NAG_INTERVAL_SECONDS:-1800}s"
 fi
@@ -301,9 +248,7 @@ case "${CAPTIONER_AUTO_START:-true}" in
     log "App log: $CAPTIONER_LOG"
     log "Controls: captionerctl status|restart|logs|doctor"
     ;;
-  *)
-    log "CAPTIONER_AUTO_START is disabled; use 'captionerctl start' when ready"
-    ;;
+  *) log "CAPTIONER_AUTO_START is disabled; use 'captionerctl start' when ready" ;;
 esac
 
 wait "$SUPERVISOR_PID"
