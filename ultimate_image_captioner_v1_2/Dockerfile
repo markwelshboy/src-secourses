@@ -29,6 +29,12 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CAPTIONER_DOWNLOADER_SOURCE=/opt/ultimate-image-captioner-tools/HF_model_downloader.py \
     CAPTIONER_DOWNLOADER=/workspace/HF_model_downloader.py \
     CAPTIONER_LOG_FILE=/workspace/logs/captioner.log \
+    CAPTIONER_AUTO_DOWNLOAD_MODELS=true \
+    CAPTIONER_RESTART_AFTER_MODEL_DOWNLOAD=true \
+    CAPTIONER_APP_READY_TIMEOUT=300 \
+    TELEGRAM_NAME=ultimate-image-captioner \
+    TELEGRAM_NAG_ENABLED=true \
+    TELEGRAM_NAG_INTERVAL_SECONDS=1800 \
     HF_HOME=/workspace
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -113,11 +119,17 @@ COPY start.sh /usr/local/bin/start-captioner-container
 COPY launch-captioner.sh /usr/local/bin/launch-captioner
 COPY captionerctl.sh /usr/local/bin/captionerctl
 COPY download-models.sh /usr/local/bin/download-captioner-models
+COPY telegram-notify.sh /usr/local/bin/telegram-notify
+COPY captioner-bootstrap.sh /usr/local/bin/captioner-bootstrap
+COPY captioner-nag.sh /usr/local/bin/captioner-nag
 RUN chmod 0755 \
       /usr/local/bin/start-captioner-container \
       /usr/local/bin/launch-captioner \
       /usr/local/bin/captionerctl \
-      /usr/local/bin/download-captioner-models
+      /usr/local/bin/download-captioner-models \
+      /usr/local/bin/telegram-notify \
+      /usr/local/bin/captioner-bootstrap \
+      /usr/local/bin/captioner-nag
 
 WORKDIR /workspace
 EXPOSE 22 7861
