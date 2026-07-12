@@ -9,6 +9,7 @@ name: Build Ultimate Image Captioner image
       - "ultimate_image_captioner_v1_2/Dockerfile"
       - "ultimate_image_captioner_v1_2/requirements_premium_caption.txt"
       - "ultimate_image_captioner_v1_2/HF_model_downloader.py"
+      - "ultimate_image_captioner_v1_2/batch-caption-qwen.py"
       - "ultimate_image_captioner_v1_2/start.sh"
       - "ultimate_image_captioner_v1_2/launch-captioner.sh"
       - "ultimate_image_captioner_v1_2/captionerctl.sh"
