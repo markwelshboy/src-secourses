@@ -151,6 +151,7 @@ chmod=0700
 
 [supervisord]
 nodaemon=true
+user=root
 logfile=/workspace/logs/supervisord.log
 logfile_maxbytes=20MB
 logfile_backups=2
@@ -215,15 +216,28 @@ start_supervisor() {
   /usr/bin/supervisord -n -c "$SUPERVISOR_CONFIG" &
   SUPERVISOR_PID=$!
   export SUPERVISOR_PID
-  local attempt
-  for attempt in {1..50}; do
-    if supervisorctl -c "$SUPERVISOR_CONFIG" status >/dev/null 2>&1; then
-      log "Supervisor started (pid $SUPERVISOR_PID)"
+
+  # `supervisorctl status` exits 3 while all programs are intentionally STOPPED,
+  # so use the RPC `pid` command as the readiness probe instead.
+  local attempt rpc_pid
+  for attempt in {1..300}; do
+    if ! kill -0 "$SUPERVISOR_PID" 2>/dev/null; then
+      log "FATAL: supervisor exited before becoming ready"
+      tail -n 100 /workspace/logs/supervisord.log 2>/dev/null || true
+      return 1
+    fi
+
+    rpc_pid="$(supervisorctl -c "$SUPERVISOR_CONFIG" pid 2>/dev/null || true)"
+    if [[ "$rpc_pid" =~ ^[0-9]+$ ]] && (( rpc_pid > 0 )); then
+      log "Supervisor started (pid $SUPERVISOR_PID, rpc pid $rpc_pid)"
       return 0
     fi
     sleep 0.1
   done
-  log "FATAL: supervisor did not become ready"
+
+  log "FATAL: supervisor RPC socket did not become ready"
+  supervisorctl -c "$SUPERVISOR_CONFIG" status 2>&1 || true
+  tail -n 100 /workspace/logs/supervisord.log 2>/dev/null || true
   return 1
 }
 
