@@ -1,0 +1,12 @@
+*
+!Dockerfile
+!requirements_premium_caption.txt
+!HF_model_downloader.py
+!batch-caption-qwen.py
+!start.sh
+!launch-captioner.sh
+!captionerctl.sh
+!download-models.sh
+!telegram-notify.sh
+!captioner-bootstrap.sh
+!captioner-nag.sh
