@@ -113,7 +113,10 @@ print("transformers:", transformers.__version__)
 print("xformers:", xformers.__version__)
 PY
 
-RUN python -m py_compile /opt/ultimate-image-captioner-tools/HF_model_downloader.py
+COPY batch-caption-qwen.py /usr/local/bin/batch-caption-qwen
+RUN python -m py_compile \
+      /opt/ultimate-image-captioner-tools/HF_model_downloader.py \
+      /usr/local/bin/batch-caption-qwen
 
 COPY start.sh /usr/local/bin/start-captioner-container
 COPY launch-captioner.sh /usr/local/bin/launch-captioner
@@ -129,7 +132,8 @@ RUN chmod 0755 \
       /usr/local/bin/download-captioner-models \
       /usr/local/bin/telegram-notify \
       /usr/local/bin/captioner-bootstrap \
-      /usr/local/bin/captioner-nag
+      /usr/local/bin/captioner-nag \
+      /usr/local/bin/batch-caption-qwen
 
 WORKDIR /workspace
 EXPOSE 22 7861
